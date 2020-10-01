@@ -40,7 +40,6 @@ covid:
   cumulative: True
   admin_level: 0
   federal_state_dict: False
-  # adm1_name_exp: ADM1_EN
   date_format: "%m/%d/%Y"
   replace_dict:
   hlx_dict:

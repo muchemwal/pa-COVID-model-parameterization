@@ -81,17 +81,18 @@ def covid(country_iso3, download_covid=False, config=None):
         )
     df_covid.fillna(0, inplace=True)
 
-    # remove Total for spatially disaggregated data
-    df_covid = df_covid[df_covid[config.HLX_TAG_ADM1_NAME] != "Total"]
-    # cleaning up names before using the replace dictionary
-    df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.replace(
-        "Province", ""
-    )
-    df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.replace(
-        "State", ""
-    )
-    df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.strip()
-    # apply replace dict to match ADM unit names in the COD with teh COVID data
+    if parameters["covid"]["admin_level"] !=0:
+        # remove Total for spatially disaggregated data
+        df_covid = df_covid[df_covid[config.HLX_TAG_ADM1_NAME] != "Total"]
+        # cleaning up names before using the replace dictionary
+        df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.replace(
+            "Province", ""
+        )
+        df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.replace(
+            "State", ""
+        )
+        df_covid[config.HLX_TAG_ADM1_NAME] = df_covid[config.HLX_TAG_ADM1_NAME].str.strip()
+        # apply replace dict to match ADM unit names in the COD with teh COVID data
     if (
         "replace_dict" in parameters["covid"]
         and parameters["covid"]["admin_level"] == 1
@@ -265,6 +266,49 @@ def covid(country_iso3, download_covid=False, config=None):
             output_df_covid = output_df_covid.append(
                 pd.DataFrame(raw_data), ignore_index=True
             )
+    elif parameters["covid"]["admin_level"] == 0:
+        # get the full list of gender/age combinations to calculate the sum of population in adm2_pop_fractions
+        # in principle we could use the sum in the exposure but it's safer to recalculate it
+        gender_age_groups = list(
+            itertools.product(config.GENDER_CLASSES, config.AGE_CLASSES)
+        )
+        gender_age_group_names = [
+            "{}_{}".format(gender_age_group[0], gender_age_group[1])
+            for gender_age_group in gender_age_groups
+        ]
+            
+        for _, row in df_covid.iterrows():
+            adm2_pop_fractions = get_adm2_to_adm0_pop_frac(
+                exposure_gdf, gender_age_group_names
+            )
+            date = datetime.datetime.strptime(
+                row[config.HLX_TAG_DATE], parameters["covid"]["date_format"]
+            ).strftime("%Y-%m-%d")
+            adm2cases = scale_adm1_by_adm2_pop(
+                parameters["covid"]["cases"],
+                config.HLX_TAG_TOTAL_CASES,
+                row,
+                adm2_pop_fractions,
+            )
+            adm2deaths = scale_adm1_by_adm2_pop(
+                parameters["covid"]["deaths"],
+                config.HLX_TAG_TOTAL_DEATHS,
+                row,
+                adm2_pop_fractions,
+            )
+            adm2pcodes = [v for v in adm2_pop_fractions.keys()]
+            adm2toadm1pcode=get_dict_pcodes(exposure_gdf,'ADM2_PCODE','ADM1_PCODE')
+            adm1pcodes = [adm2toadm1pcode[v] for v in adm2_pop_fractions.keys()]
+            raw_data = {
+                config.HLX_TAG_ADM1_PCODE: adm1pcodes,
+                config.HLX_TAG_ADM2_PCODE: adm2pcodes,
+                config.HLX_TAG_DATE: date,
+                config.HLX_TAG_TOTAL_CASES: adm2cases,
+                config.HLX_TAG_TOTAL_DEATHS: adm2deaths,
+            }
+            output_df_covid = output_df_covid.append(
+                pd.DataFrame(raw_data), ignore_index=True
+            )
     else:
         logger.error(f"Missing admin_level info for COVID data")
     # cross-check: the total must match
@@ -350,6 +394,13 @@ def get_adm2_to_adm1_pop_frac(pcode, exposure_gdf, gender_age_group_names):
     exp_adm1 = exposure_gdf[exposure_gdf["ADM1_PCODE"] == pcode]
     adm2_pop = exp_adm1[gender_age_group_names].sum(axis=1)
     adm2_pop_fractions = dict(zip(exp_adm1["ADM2_PCODE"], adm2_pop / adm2_pop.sum()))
+    return adm2_pop_fractions
+
+def get_adm2_to_adm0_pop_frac(exposure_gdf, gender_age_group_names):
+    # get the full exposure and returns a dictionary with
+    # the fraction of the population of each ADM2
+    adm2_pop = exposure_gdf[gender_age_group_names].sum(axis=1)
+    adm2_pop_fractions = dict(zip(exposure_gdf["ADM2_PCODE"], adm2_pop / adm2_pop.sum()))
     return adm2_pop_fractions
 
 
