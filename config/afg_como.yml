@@ -14,27 +14,21 @@ vulnerability:
       - (24, 4)
       - (24, 5)
   ipc:
-    filename: Afghanistan - IPC Analysis 2020-2020.xlsx
-    last_row: 58
-    admin_level: 1
-    replace_dict:
-      Helmand: Hilmand
-      Sari Pul: Sar-e-Pul
-      Wardak: Maidan Wardak
+    filename: ~
   solid_fuels:
     # from https://www.who.int/nmh/countries/afg_en.pdf?ua=1
-    frac_urban: 0.28
-    frac_rural: 0.95
+    frac_urban: 0.
+    frac_rural: 0.
   handwashing_facilities:
     # from https://washdata.org/data/downloads#WLD
-    frac_urban: 0.36
-    frac_rural: 0.71
+    frac_urban: 0.
+    frac_rural: 0.
   # https://www.who.int/nmh/countries/afg_en.pdf?ua=1
-  raised_blood_pressure: 0.23
+  raised_blood_pressure: 0.
   # https://www.who.int/nmh/countries/afg_en.pdf?ua=1
-  diabetes: 0.08
+  diabetes: 0.
   # https://vizhub.healthdata.org/tobacco/
-  smoking: 0.13
+  smoking: 0.
 covid:
   url: https://docs.google.com/spreadsheets/u/1/d/1F-AMEDtqK78EA6LYME2oOsWQsgJi4CT3V_G4Uo-47Rg/export?format=csv&id=1F-AMEDtqK78EA6LYME2oOsWQsgJi4CT3V_G4Uo-47Rg&gid=1539509351
   filename: covid_data.csv
