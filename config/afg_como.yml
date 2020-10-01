@@ -30,34 +30,23 @@ vulnerability:
   # https://vizhub.healthdata.org/tobacco/
   smoking: 0.
 covid:
-  url: https://docs.google.com/spreadsheets/u/1/d/1F-AMEDtqK78EA6LYME2oOsWQsgJi4CT3V_G4Uo-47Rg/export?format=csv&id=1F-AMEDtqK78EA6LYME2oOsWQsgJi4CT3V_G4Uo-47Rg&gid=1539509351
-  filename: covid_data.csv
-  header: 1
-  skiprows: 0
+  url: ~
+  filename: outputs-AFG v15_2 OCHA COMP2.csv
+  header: 0
+  skiprows: ~
   cases: True
   deaths: True
   individual_case_data: False
   cumulative: True
-  admin_level: 1
+  admin_level: 0
   federal_state_dict: False
-  adm1_name_exp: ADM1_EN
-  date_format: "%Y-%m-%d"
+  # adm1_name_exp: ADM1_EN
+  date_format: "%m/%d/%Y"
   replace_dict:
-    Herat: Hirat
-    Dykundi: Daykundi
-    Nooristan: Nuristan
-    Helmand: Hilmand
-    Paktia: Paktya
-    Jowzjan: Jawzjan
-    Panjshir: Panjsher 
-    Urozgan: Uruzgan
-    Sar-e Pol: Sar-e-Pul
-    Nimruz: Nimroz
-    Wardak: Maidan Wardak
-    Sar-e Pol: Sar-e-Pul
   hlx_dict:
-    "#affected+infected+cases": "#affected+infected+confirmed+total"
-    "#affected+infected+deaths": "#affected+infected+dead+total"
+    "baseline_predicted_reported": "#affected+infected+confirmed+total"
+    "baseline_reportable_death": "#affected+infected+dead+total"
+    "date": "#date"
 contact_matrix:
   country: Pakistan
   file_number: 2
