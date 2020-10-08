@@ -39,8 +39,8 @@ def graph(country_iso3, config=None):
     G = add_covid(G, main_dir, country_iso3, config)
 
     # Add WHO data
-    if parameters['covid']['admin_level']==0:
-        G = add_WHO_data(G, country_iso3, config)
+    # if parameters['covid']['admin_level']==0:
+        # G = add_WHO_data(G, country_iso3, config)
 
     # Add vulnerability
     G = add_vulnerability(G, main_dir, country_iso3, config)

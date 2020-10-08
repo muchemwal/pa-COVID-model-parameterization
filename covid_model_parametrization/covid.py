@@ -338,9 +338,13 @@ def covid(country_iso3, download_covid=False, config=None):
             output_df_covid.groupby(groups).sum().sort_values(by=config.HLX_TAG_DATE)
         )
         # get cumsum by day (grouped by ADM2)
-        output_df_covid = (
-            output_df_covid.groupby(config.HLX_TAG_ADM2_PCODE).cumsum().reset_index()
+        # output_df_covid = (
+            # output_df_covid.groupby(config.HLX_TAG_ADM2_PCODE).cumsum().reset_index()
+        # )
+        output_df_covid[config.HLX_TAG_TOTAL_CASES] = (
+            output_df_covid.groupby(config.HLX_TAG_ADM2_PCODE).cumsum()[config.HLX_TAG_TOTAL_CASES]
         )
+        output_df_covid=output_df_covid.reset_index()
 
     if parameters["covid"].get("federal_state_dict", False):
         # bring back the adm1 pcode that we modified to calculate the sum
